@@ -1,1 +1,0 @@
-# ar-winding-number

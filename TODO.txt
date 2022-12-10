@@ -1,5 +1,5 @@
 spatial anchors
-  rotate apartment so the persistant anchor aligns with the apartment anchor
+  only update tracking once
   
 https://developer.oculus.com/documentation/web/webxr-mixed-reality/
 view-source:https://cabanier.github.io/webxr-samples-1/anchors.html

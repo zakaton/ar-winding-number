@@ -35,6 +35,7 @@ AFRAME.registerSystem("persistent-anchors", {
           console.log("known anchor:");
           for (let i = 0; i < anchors.length; i++) {
             console.log(i + ": " + anchors[i]);
+            this.frame.session.deletePersistentAnchor(anchors[i]);
           }
         }
         if (localStorage.anchor) {
@@ -50,7 +51,7 @@ AFRAME.registerSystem("persistent-anchors", {
         }
       }
       
-      if (this.anchor) {
+      if (this.anchor && this._updateTransformFlag) {
         const anchorPose = this.frame.getPose(
           this.anchor.anchorSpace,
           this.referenceSpace
@@ -64,45 +65,26 @@ AFRAME.registerSystem("persistent-anchors", {
           );
           this.anchorEntity.object3D.quaternion.copy(orientation);
           this.anchorEntity.object3D.visible = true;
-          
-          // FILL - transform this.data.target so this.data.targetAnchor aligns with this.anchorEntity
-          // targetAnchor x target = anchorEntity
-          // target = anchorEntity / targetAnchor
+
           this.matrix.fromArray(matrix).multiply(this.matrixInverse)
           this.data.target.object3D.position.setFromMatrixPosition(this.matrix)
           this.data.target.object3D.quaternion.setFromRotationMatrix(this.matrix)
+          
+          this._updateTransformFlag = false;
+          console.log("updated")
         } else {
           this.anchorEntity.object3D.visible = false;
         }
       }
       
-      /*
       const trackedAnchors = this.frame.trackedAnchors;
       if (trackedAnchors?.size > 0) {
         this.trackedAnchors = trackedAnchors;
       }
       trackedAnchors.forEach((anchor) => {
-        const anchorPose = this.frame.getPose(
-          anchor.anchorSpace,
-          this.referenceSpace
-        );
-        if (anchorPose) {
-          //anchor.context.sceneObject.matrix = anchorPose.transform.matrix;
-          //anchor.context.sceneObject.visible = true;
-          const { orientation, position } = anchorPose.transform;
-          this.anchorEntity.object3D.position.set(
-            position.x,
-            position.y,
-            position.z
-          );
-          this.anchorEntity.object3D.quaternion.copy(orientation);
-          this.anchorEntity.object3D.visible = true;
-        } else {
-          //anchor.context.sceneObject.visible = false;
-          this.anchorEntity.object3D.visible = false;
-        }
+        //console.log("deleting anchor", anchor)
+        //anchor.delete();
       });
-      */
 
       if (this._deleteAnchorFlag) {
         this._deleteAnchor();
@@ -170,7 +152,7 @@ AFRAME.registerSystem("persistent-anchors", {
   },
 
   addAnchoredObjectToScene: function (anchor) {
-    // FILL
     this.anchor = anchor;
+    this._updateTransformFlag = true;
   },
 });
